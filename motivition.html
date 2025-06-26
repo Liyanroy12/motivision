@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motivation Countdown Persistent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Slide-up fade-in animation for each word */
+        @keyframes slideUpFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            animation-fill-mode: forwards;
+            animation-name: slideUpFadeIn;
+            animation-duration: 0.4s;
+            animation-timing-function: ease-out;
+            margin-right: 0.25em;
+            /* gap between words */
+        }
+
+        /* Author fade-in */
+        .fade-in {
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4 py-8 space-y-8">
+
+    <div class="max-w-4xl w-full">
+        <div id="quoteText"
+            class="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-white">
+            Loading...
+        </div>
+        <div id="quoteAuthor"
+            class="text-right text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mt-4 fade-in pr-2">
+            —
+        </div>
+    </div>
+
+    <div id="timerDisplay" class="text-sm text-gray-400">Next quote in 30s</div>
+
+    <script>
+        const quotes = [
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+            { text: "Dream big. Start small. Act now.", author: "Robin Sharma" },
+            { text: "Doubt kills more dreams than failure ever will.", author: "Suzy Kassem" },
+            { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+            { text: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau" },
+            { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+            { text: "Don’t limit your challenges. Challenge your limits.", author: "Jerry Dunn" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Everything you’ve ever wanted is on the other side of fear.", author: "George Addair" },
+            { text: "Push through the pain. The reward is worth it.", author: "Unknown" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "Act as if what you do makes a difference. It does.", author: "William James" },
+            { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
+            { text: "What you get by achieving your goals is not as important as what you become by achieving your goals.", author: "Zig Ziglar" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "Keep your face always toward the sunshine—and shadows will fall behind you.", author: "Walt Whitman" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "You miss 100% of the shots you don’t take.", author: "Wayne Gretzky" },
+            { text: "It always seems impossible until it’s done.", author: "Nelson Mandela" },
+            { text: "Don't limit your challenges. Challenge your limits.", author: "Jerry Dunn" },
+            { text: "Failure will never overtake me if my determination to succeed is strong enough.", author: "Og Mandino" },
+            { text: "Perseverance is not a long race; it is many short races one after another.", author: "Walter Elliot" },
+            { text: "Try not to become a man of success. Rather become a man of value.", author: "Albert Einstein" },
+            { text: "You don’t have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+            { text: "Success is walking from failure to failure with no loss of enthusiasm.", author: "Winston Churchill" },
+            { text: "Don’t wait. The time will never be just right.", author: "Napoleon Hill" },
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+            { text: "Great things never come from comfort zones.", author: "Unknown" },
+            { text: "Push yourself because no one else is going to do it for you.", author: "Unknown" },
+            { text: "Magic is believing in yourself. If you can do that, you can make anything happen.", author: "Johann Wolfgang von Goethe" },
+            { text: "Your limitation—it’s only your imagination.", author: "Unknown" },
+            { text: "Sometimes later becomes never. Do it now.", author: "Unknown" },
+            { text: "The harder you work for something, the greater you’ll feel when you achieve it.", author: "Unknown" },
+            { text: "Dream it. Wish it. Do it.", author: "Unknown" },
+            { text: "Success doesn’t just find you. You have to go out and get it.", author: "Unknown" },
+            { text: "Don’t stop when you’re tired. Stop when you’re done.", author: "Unknown" },
+            { text: "Wake up with determination. Go to bed with satisfaction.", author: "Unknown" },
+            { text: "Do something today that your future self will thank you for.", author: "Unknown" },
+            { text: "Little things make big days.", author: "Unknown" },
+            { text: "It’s going to be hard, but hard does not mean impossible.", author: "Unknown" },
+            { text: "Don’t wait for opportunity. Create it.", author: "Unknown" },
+            { text: "Sometimes we’re tested not to show our weaknesses, but to discover our strengths.", author: "Unknown" },
+            { text: "The key to success is to focus on goals, not obstacles.", author: "Unknown" },
+            { text: "Dream bigger. Do bigger.", author: "Unknown" },
+            { text: "Stay positive, work hard, make it happen.", author: "Unknown" },
+            { text: "The best way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+            { text: "Don’t wish it were easier. Wish you were better.", author: "Jim Rohn" },
+            { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+            { text: "Don’t be afraid to give up the good to go for the great.", author: "John D. Rockefeller" }
+        ];
+
+        const QUOTE_INTERVAL = 30; // seconds (changed here)
+
+        // LocalStorage keys
+        const STORAGE_KEY_INDEX = "motivation_currentIndex";
+        const STORAGE_KEY_TIMESTAMP = "motivation_lastTimestamp";
+
+        // Initialize currentIndex and countdown based on localStorage or default
+        let currentIndex = parseInt(localStorage.getItem(STORAGE_KEY_INDEX));
+        if (isNaN(currentIndex) || currentIndex < 0 || currentIndex >= quotes.length) {
+            currentIndex = quotes.length - 1;
+        }
+
+        // Calculate countdown based on stored timestamp
+        let lastTimestamp = parseInt(localStorage.getItem(STORAGE_KEY_TIMESTAMP));
+        let countdown;
+        const now = Math.floor(Date.now() / 1000); // current time in seconds
+
+        if (lastTimestamp && now - lastTimestamp < QUOTE_INTERVAL) {
+            countdown = QUOTE_INTERVAL - (now - lastTimestamp);
+        } else {
+            countdown = QUOTE_INTERVAL;
+            // If expired, move to next quote to sync properly
+            currentIndex = (currentIndex - 1 + quotes.length) % quotes.length;
+            localStorage.setItem(STORAGE_KEY_INDEX, currentIndex);
+            localStorage.setItem(STORAGE_KEY_TIMESTAMP, now);
+        }
+
+        function showQuote(index) {
+            const quote = quotes[index];
+            const quoteTextEl = document.getElementById("quoteText");
+            const quoteAuthorEl = document.getElementById("quoteAuthor");
+
+            // Clear existing quote text
+            quoteTextEl.innerHTML = "";
+
+            // Split quote text into words
+            const words = quote.text.split(" ");
+
+            // Create spans for each word with staggered animation delay
+            words.forEach((word, i) => {
+                const span = document.createElement("span");
+                span.className = "word";
+                span.style.animationDelay = `${i * 0.15}s`; // 150ms delay between words
+                span.innerText = word;
+                quoteTextEl.appendChild(span);
+            });
+
+            // Animate author with fade-in
+            quoteAuthorEl.classList.remove("fade-in");
+            void quoteAuthorEl.offsetWidth; // trigger reflow
+            quoteAuthorEl.innerText = `— ${quote.author}`;
+            quoteAuthorEl.classList.add("fade-in");
+        }
+
+        function updateTimer() {
+            document.getElementById("timerDisplay").innerText = `Next quote in ${countdown}s`;
+            countdown--;
+
+            if (countdown < 0) {
+                currentIndex = (currentIndex - 1 + quotes.length) % quotes.length;
+                showQuote(currentIndex);
+                countdown = QUOTE_INTERVAL;
+
+                // Save new index and timestamp
+                localStorage.setItem(STORAGE_KEY_INDEX, currentIndex);
+                localStorage.setItem(STORAGE_KEY_TIMESTAMP, Math.floor(Date.now() / 1000));
+            }
+        }
+
+        // Show initial quote
+        showQuote(currentIndex);
+        // Start timer interval
+        setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+
+</html>
